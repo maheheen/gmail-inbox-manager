@@ -2,7 +2,7 @@
 
 An n8n workflow that monitors a Gmail inbox, extracts key email information with OpenAI, and routes messages into useful categories. It can also send automated replies for selected message types.
 
-![Workflow overview](assets/workflow.png)
+![Workflow overview](Workflow.png)
 
 ## What it does
 
@@ -27,7 +27,7 @@ An n8n workflow that monitors a Gmail inbox, extracts key email information with
 
 ## Set up
 
-1. Import [`workflows/Gmail Inbox Manager & Classifier.json`](workflows/Gmail%20Inbox%20Manager%20%26%20Classifier.json) into n8n.
+1. Import [`Gmail Inbox Manager & Classifier.json`](Gmail%20Inbox%20Manager%20%26%20Classifier.json) into n8n.
 2. Reconnect the Gmail and OpenAI credential references to credentials in your own n8n instance.
 3. Review each Gmail label node and select or create the corresponding label.
 4. Review the classifier categories and automated reply messages; customize them for your inbox.
@@ -43,10 +43,8 @@ Because this workflow can read email contents and send replies, review its nodes
 
 ```text
 .
-├── assets/
-│   └── workflow.png
-├── workflows/
-│   └── Gmail Inbox Manager & Classifier.json
+├── Gmail Inbox Manager & Classifier.json
+├── Workflow.png
 ├── .gitignore
 └── README.md
 ```
