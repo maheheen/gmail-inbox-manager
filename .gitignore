@@ -1,0 +1,20 @@
+# Credentials and local configuration
+.env
+.env.*
+!.env.example
+credentials.json
+secrets.json
+
+# Original flat-file copies retained locally after OneDrive blocked a safe move.
+# GitHub will use the organized copies in workflows/ and assets/ instead.
+/Gmail Inbox Manager & Classifier.json
+/Workflow.png
+
+# n8n exports that may contain execution or personal data
+executions/
+data/
+exports/
+
+# System files
+.DS_Store
+Thumbs.db

@@ -1,0 +1,663 @@
+{
+  "name": "Gmail Inbox Manager & Classifier",
+  "nodes": [
+    {
+      "parameters": {
+        "pollTimes": {
+          "item": [
+            {
+              "mode": "everyMinute"
+            }
+          ]
+        },
+        "simple": false,
+        "filters": {},
+        "options": {}
+      },
+      "type": "n8n-nodes-base.gmailTrigger",
+      "typeVersion": 1.4,
+      "position": [
+        0,
+        256
+      ],
+      "id": "72d11510-9d22-4fe9-9244-42f913bacac3",
+      "name": "Gmail Trigger",
+      "credentials": {
+        "gmailOAuth2": {
+          "id": "S26mlEbUGex0wDP1",
+          "name": "Gmail account"
+        }
+      }
+    },
+    {
+      "parameters": {
+        "text": "={{ $json.text }}",
+        "attributes": {
+          "attributes": [
+            {
+              "name": "sender_name",
+              "description": "Extract the sender's name from this email. Incase of email having no sender name, return empty string."
+            }
+          ]
+        },
+        "options": {
+          "systemPromptTemplate": "You are an expert extraction algorithm.\nOnly extract relevant information from the text.\nIf you do not know the value of an attribute asked to extract, leave it as an empty string."
+        }
+      },
+      "type": "@n8n/n8n-nodes-langchain.informationExtractor",
+      "typeVersion": 1.2,
+      "position": [
+        224,
+        256
+      ],
+      "id": "511e1680-04bc-45ea-9cf1-4474fc309c0e",
+      "name": "Information Extractor"
+    },
+    {
+      "parameters": {
+        "model": {
+          "__rl": true,
+          "mode": "list",
+          "value": "gpt-5-mini"
+        },
+        "builtInTools": {},
+        "options": {}
+      },
+      "type": "@n8n/n8n-nodes-langchain.lmChatOpenAi",
+      "typeVersion": 1.3,
+      "position": [
+        304,
+        496
+      ],
+      "id": "24efb95d-8665-4a16-b7bd-285a6ddce98b",
+      "name": "OpenAI Chat Model",
+      "credentials": {
+        "openAiApi": {
+          "id": "g9QKXrpytVFkCpyR",
+          "name": "n8n free OpenAI API credits"
+        }
+      }
+    },
+    {
+      "parameters": {
+        "conditions": {
+          "options": {
+            "caseSensitive": true,
+            "leftValue": "",
+            "typeValidation": "strict",
+            "version": 3
+          },
+          "conditions": [
+            {
+              "id": "ac42dacc-acfb-4a5d-ada5-539f36a308a5",
+              "leftValue": "={{ $json.output.sender_name }}",
+              "rightValue": "",
+              "operator": {
+                "type": "string",
+                "operation": "notEmpty",
+                "singleValue": true
+              }
+            }
+          ],
+          "combinator": "and"
+        },
+        "options": {}
+      },
+      "type": "n8n-nodes-base.if",
+      "typeVersion": 2.3,
+      "position": [
+        576,
+        256
+      ],
+      "id": "9d90ffc4-7caa-4b39-bf23-e6613204787f",
+      "name": "If"
+    },
+    {
+      "parameters": {
+        "assignments": {
+          "assignments": [
+            {
+              "id": "2acbd038-3689-401b-8a5a-0d938bd26ae4",
+              "name": "intro",
+              "value": "=Dear {{ $('Information Extractor').item.json.output.sender_name }},",
+              "type": "string"
+            }
+          ]
+        },
+        "options": {}
+      },
+      "type": "n8n-nodes-base.set",
+      "typeVersion": 3.5,
+      "position": [
+        800,
+        160
+      ],
+      "id": "bd969e10-c852-4b3d-bf49-81769fc25b92",
+      "name": "Edit Fields"
+    },
+    {
+      "parameters": {
+        "assignments": {
+          "assignments": [
+            {
+              "id": "c1c6efcf-1111-4e4d-b107-265e2347dc51",
+              "name": "intro",
+              "value": "Hi there,",
+              "type": "string"
+            }
+          ]
+        },
+        "options": {}
+      },
+      "type": "n8n-nodes-base.set",
+      "typeVersion": 3.5,
+      "position": [
+        800,
+        352
+      ],
+      "id": "06691629-1215-43cf-b514-eabbea36f463",
+      "name": "Edit Fields1"
+    },
+    {
+      "parameters": {
+        "mode": "combine",
+        "fieldsToMatchString": "intro",
+        "joinMode": "keepNonMatches",
+        "options": {}
+      },
+      "type": "n8n-nodes-base.merge",
+      "typeVersion": 3.2,
+      "position": [
+        1024,
+        256
+      ],
+      "id": "9791a435-3837-43bc-b1f7-c266401c2dc4",
+      "name": "Merge"
+    },
+    {
+      "parameters": {
+        "assignments": {
+          "assignments": [
+            {
+              "id": "f1647999-d4e4-467d-baa6-b7a14186e095",
+              "name": "message_id",
+              "value": "={{ $('Gmail Trigger').item.json.id }}",
+              "type": "string"
+            },
+            {
+              "id": "0e78d4f5-0481-4ac4-bd9b-27c5bd49bea3",
+              "name": "thread_id",
+              "value": "={{ $('Gmail Trigger').item.json.threadId }}",
+              "type": "string"
+            },
+            {
+              "id": "1f3c93f8-3234-43a8-83b4-177a0864e9be",
+              "name": "text",
+              "value": "={{ $('Gmail Trigger').item.json.text }}",
+              "type": "string"
+            }
+          ]
+        },
+        "options": {}
+      },
+      "type": "n8n-nodes-base.set",
+      "typeVersion": 3.5,
+      "position": [
+        1248,
+        256
+      ],
+      "id": "7ee20324-9df2-48d0-8dee-fa9d5e932fb1",
+      "name": "Clean Data"
+    },
+    {
+      "parameters": {
+        "inputText": "={{ $json.text }}",
+        "categories": {
+          "categories": [
+            {
+              "category": "Service Requests",
+              "description": "Emails from existing clients asking for support, changes, revisions, or reporting an issue with work that is already in progress. Only for people with an active or prior working relationship — not new inquiries."
+            },
+            {
+              "category": "Consultation Requests",
+              "description": "Emails from new or prospective clients asking about services, requesting a call/meeting, or asking for a quote or proposal. From someone with no existing active work — if they already have a project running, use Service Requests instead."
+            },
+            {
+              "category": "Payments",
+              "description": "=Invoices, payment confirmations, receipts, billing questions, or payment reminders. From clients, payment processors (Stripe, PayPal), or banks."
+            },
+            {
+              "category": "Jobs/Applications",
+              "description": "Replies to job, internship, or externship applications you submitted — interview invites, assessments, rejections, or status updates. Not general networking or unsolicited outreach from others."
+            },
+            {
+              "category": "Networking/Oppurtunities",
+              "description": "Pitches, collaboration or guest post invites, speaking or interview requests from others, and networking outreach. Not replies to jobs/internships you applied for — those go to Jobs / Applications. Not a request for paid services — those go to Consultation or Service Requests."
+            },
+            {
+              "category": "Others",
+              "description": "Newsletters, promotions, spam, internal/team mail, or anything that doesn't clearly match the categories above."
+            }
+          ]
+        },
+        "options": {
+          "systemPromptTemplate": "Please classify the text provided by the user into one of the following categories: {categories}, and use the provided formatting instructions below. Don't explain, and only output the json."
+        }
+      },
+      "type": "@n8n/n8n-nodes-langchain.textClassifier",
+      "typeVersion": 1.1,
+      "position": [
+        1472,
+        192
+      ],
+      "id": "63225ca5-b38a-43be-90e8-9ca21699bdbd",
+      "name": "Text Classifier"
+    },
+    {
+      "parameters": {
+        "model": {
+          "__rl": true,
+          "mode": "list",
+          "value": "gpt-5-mini"
+        },
+        "builtInTools": {},
+        "options": {}
+      },
+      "type": "@n8n/n8n-nodes-langchain.lmChatOpenAi",
+      "typeVersion": 1.3,
+      "position": [
+        1552,
+        624
+      ],
+      "id": "c93b3105-db6b-451a-bb34-145e1835d149",
+      "name": "OpenAI Chat Model1",
+      "credentials": {
+        "openAiApi": {
+          "id": "g9QKXrpytVFkCpyR",
+          "name": "n8n free OpenAI API credits"
+        }
+      }
+    },
+    {
+      "parameters": {
+        "operation": "addLabels",
+        "messageId": "={{ $('Clean Data').item.json.message_id }}",
+        "labelIds": [
+          "Label_5000991475878062097"
+        ]
+      },
+      "type": "n8n-nodes-base.gmail",
+      "typeVersion": 2.2,
+      "position": [
+        1824,
+        352
+      ],
+      "id": "8cc2d662-61d4-49fd-ba4f-44cae0ffe75a",
+      "name": "Jobs/Applications",
+      "webhookId": "a2b4c944-8abf-4300-91b2-c8887711772c",
+      "credentials": {
+        "gmailOAuth2": {
+          "id": "tXIVV3I87AAojHQd",
+          "name": "Gmail account 2"
+        }
+      }
+    },
+    {
+      "parameters": {
+        "operation": "addLabels",
+        "messageId": "={{ $('Clean Data').item.json.message_id }}",
+        "labelIds": [
+          "Label_7091111381885212935"
+        ]
+      },
+      "type": "n8n-nodes-base.gmail",
+      "typeVersion": 2.2,
+      "position": [
+        1824,
+        544
+      ],
+      "id": "62db4ab4-d50c-479f-91c9-8c053cdd2728",
+      "name": "Networking/Oppurtunities",
+      "webhookId": "7df13c30-b6e8-4854-8e40-206a42e8e867",
+      "credentials": {
+        "gmailOAuth2": {
+          "id": "tXIVV3I87AAojHQd",
+          "name": "Gmail account 2"
+        }
+      }
+    },
+    {
+      "parameters": {
+        "operation": "addLabels",
+        "messageId": "={{ $('Clean Data').item.json.message_id }}",
+        "labelIds": [
+          "Label_3699478782135449736"
+        ]
+      },
+      "type": "n8n-nodes-base.gmail",
+      "typeVersion": 2.2,
+      "position": [
+        1824,
+        736
+      ],
+      "id": "53488c75-f322-4f03-8e62-a70b77b1f349",
+      "name": "Others",
+      "webhookId": "d102c44f-25ea-427e-b0cb-6e12b6b1b3dc",
+      "credentials": {
+        "gmailOAuth2": {
+          "id": "tXIVV3I87AAojHQd",
+          "name": "Gmail account 2"
+        }
+      }
+    },
+    {
+      "parameters": {
+        "operation": "addLabels",
+        "messageId": "={{ $('Clean Data').item.json.message_id }}",
+        "labelIds": [
+          "Label_2016333336195813353"
+        ]
+      },
+      "type": "n8n-nodes-base.gmail",
+      "typeVersion": 2.2,
+      "position": [
+        1824,
+        -224
+      ],
+      "id": "52935dac-d0ae-4f89-8f43-549a235afe47",
+      "name": "Service Requests",
+      "webhookId": "9cd1ee8a-ddf2-44d8-b22f-2f7fe72d670b",
+      "credentials": {
+        "gmailOAuth2": {
+          "id": "S26mlEbUGex0wDP1",
+          "name": "Gmail account"
+        }
+      }
+    },
+    {
+      "parameters": {
+        "operation": "addLabels",
+        "messageId": "={{ $('Clean Data').item.json.message_id }}",
+        "labelIds": [
+          "Label_5937787363501249805"
+        ]
+      },
+      "type": "n8n-nodes-base.gmail",
+      "typeVersion": 2.2,
+      "position": [
+        1824,
+        -32
+      ],
+      "id": "86c9a3ec-b2ec-493a-aff7-f75fef49a03b",
+      "name": "Consultation Requests",
+      "webhookId": "47d21028-8973-4c00-86d5-088a01b0258f",
+      "credentials": {
+        "gmailOAuth2": {
+          "id": "tXIVV3I87AAojHQd",
+          "name": "Gmail account 2"
+        }
+      }
+    },
+    {
+      "parameters": {
+        "operation": "addLabels",
+        "messageId": "={{ $('Clean Data').item.json.message_id }}",
+        "labelIds": [
+          "Label_2169386379293153103"
+        ]
+      },
+      "type": "n8n-nodes-base.gmail",
+      "typeVersion": 2.2,
+      "position": [
+        1824,
+        160
+      ],
+      "id": "d18a9a55-308c-4361-8daa-b47a99790e71",
+      "name": "Payments",
+      "webhookId": "0a21d9bb-5a84-4960-b5e9-a24b345f9335",
+      "credentials": {
+        "gmailOAuth2": {
+          "id": "tXIVV3I87AAojHQd",
+          "name": "Gmail account 2"
+        }
+      }
+    },
+    {
+      "parameters": {
+        "operation": "reply",
+        "messageId": "={{ $('Clean Data').item.json.message_id }}",
+        "emailType": "text",
+        "message": "={{ $('Merge').item.json.intro }}\n\nThank you for reaching out! We're excited to learn about your needs and how we can assist you.\n\nYour inquiry has been received, and a member of our team is reviewing the details. We'll get back to you within 24 hours with more information.\n\nWe look forward to connecting with you!\n\nBest Regards, \nMaheen Fatima",
+        "options": {}
+      },
+      "type": "n8n-nodes-base.gmail",
+      "typeVersion": 2.2,
+      "position": [
+        2048,
+        -224
+      ],
+      "id": "3ae3be6d-9a82-490b-9b4d-6a4c0e0a2746",
+      "name": "Reply to a message",
+      "webhookId": "b5be77e2-96d4-4dfd-81cf-d976d45356d1",
+      "credentials": {
+        "gmailOAuth2": {
+          "id": "tXIVV3I87AAojHQd",
+          "name": "Gmail account 2"
+        }
+      }
+    },
+    {
+      "parameters": {
+        "operation": "reply",
+        "messageId": "={{ $('Text Classifier').item.json.message_id }}",
+        "message": "={{ $('Merge').item.json.intro }}\n\nThank you for reaching out! We're excited to learn about your needs and how we can assist you.\n\nYour inquiry has been received, and a member of our team is reviewing the details. We'll get back to you within 24 hours with more information.\n\nWe look forward to connecting with you!\n\nBest Regards, \nMaheen Fatima",
+        "options": {}
+      },
+      "type": "n8n-nodes-base.gmail",
+      "typeVersion": 2.2,
+      "position": [
+        2048,
+        -32
+      ],
+      "id": "5570f495-0c77-4828-9938-c2f9013888e0",
+      "name": "Reply to a message1",
+      "webhookId": "8cf62741-f974-45c1-9c4d-4d104e8ea1ee",
+      "credentials": {
+        "gmailOAuth2": {
+          "id": "tXIVV3I87AAojHQd",
+          "name": "Gmail account 2"
+        }
+      }
+    }
+  ],
+  "pinData": {},
+  "connections": {
+    "Gmail Trigger": {
+      "main": [
+        [
+          {
+            "node": "Information Extractor",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "OpenAI Chat Model": {
+      "ai_languageModel": [
+        [
+          {
+            "node": "Information Extractor",
+            "type": "ai_languageModel",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Information Extractor": {
+      "main": [
+        [
+          {
+            "node": "If",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "If": {
+      "main": [
+        [
+          {
+            "node": "Edit Fields",
+            "type": "main",
+            "index": 0
+          }
+        ],
+        [
+          {
+            "node": "Edit Fields1",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Edit Fields": {
+      "main": [
+        [
+          {
+            "node": "Merge",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Edit Fields1": {
+      "main": [
+        [
+          {
+            "node": "Merge",
+            "type": "main",
+            "index": 1
+          }
+        ]
+      ]
+    },
+    "Merge": {
+      "main": [
+        [
+          {
+            "node": "Clean Data",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Clean Data": {
+      "main": [
+        [
+          {
+            "node": "Text Classifier",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "OpenAI Chat Model1": {
+      "ai_languageModel": [
+        [
+          {
+            "node": "Text Classifier",
+            "type": "ai_languageModel",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Text Classifier": {
+      "main": [
+        [
+          {
+            "node": "Service Requests",
+            "type": "main",
+            "index": 0
+          }
+        ],
+        [
+          {
+            "node": "Consultation Requests",
+            "type": "main",
+            "index": 0
+          }
+        ],
+        [
+          {
+            "node": "Payments",
+            "type": "main",
+            "index": 0
+          }
+        ],
+        [
+          {
+            "node": "Jobs/Applications",
+            "type": "main",
+            "index": 0
+          }
+        ],
+        [
+          {
+            "node": "Networking/Oppurtunities",
+            "type": "main",
+            "index": 0
+          }
+        ],
+        [
+          {
+            "node": "Others",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Service Requests": {
+      "main": [
+        [
+          {
+            "node": "Reply to a message",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Consultation Requests": {
+      "main": [
+        [
+          {
+            "node": "Reply to a message1",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    }
+  },
+  "active": true,
+  "settings": {
+    "executionOrder": "v1",
+    "binaryMode": "separate"
+  },
+  "versionId": "c6eb4ab3-6d5d-475b-b5f3-14d8c10a6e0a",
+  "meta": {
+    "templateCredsSetupCompleted": true,
+    "instanceId": "3b469df83d4c95ed13c53cec9ebc7e40501f959d8c8becbae7b7facccc4f75a0"
+  },
+  "nodeGroups": [],
+  "id": "gBRFtb1MItI8RQEZ",
+  "tags": []
+}
