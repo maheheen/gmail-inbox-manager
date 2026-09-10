@@ -49,6 +49,3 @@ Because this workflow can read email contents and send replies, review its nodes
 └── README.md
 ```
 
-## License
-
-No license has been selected yet. Add one before sharing or accepting contributions if you want to define how others may use this workflow.
