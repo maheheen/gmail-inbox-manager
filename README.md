@@ -2,7 +2,7 @@
 
 An n8n workflow that monitors a Gmail inbox, extracts key email information with OpenAI, and routes messages into useful categories. It can also send automated replies for selected message types.
 
-![Workflow overview](Workflow.png)
+![Workflow overview](workflow.png)
 
 ## What it does
 
