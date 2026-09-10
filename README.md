@@ -44,7 +44,7 @@ Because this workflow can read email contents and send replies, review its nodes
 ```text
 .
 ├── Gmail Inbox Manager & Classifier.json
-├── Workflow.png
+├── workflow.png
 ├── .gitignore
 └── README.md
 ```
